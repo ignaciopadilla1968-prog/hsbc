@@ -1,0 +1,277 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mobile Banking Demo</title>
+
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+
+<style>
+body {
+  margin:0;
+  font-family:'Segoe UI', Arial;
+  background:#e0e0e0;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  min-height:100vh;
+}
+
+/* APP */
+.app {
+  width:100%;
+  max-width:380px;
+  height:100vh;
+  background:#fff;
+  border-radius:25px;
+  overflow:hidden;
+  box-shadow:0 20px 50px rgba(0,0,0,0.3);
+  position:relative;
+  display:flex;
+  flex-direction:column;
+}
+
+/* SCREENS */
+.screen {
+  flex:1;
+  padding:25px 20px 90px;
+  box-sizing:border-box;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  align-items:center;
+  text-align:center;
+}
+
+/* HIDE */
+.hidden { display:none; }
+
+/* LOGO */
+.logo { width:150px; margin-bottom:15px; }
+
+/* BUTTON */
+button {
+  width:90%;
+  padding:12px;
+  border:none;
+  border-radius:12px;
+  background:#e53935;
+  color:#fff;
+  font-size:16px;
+  margin-top:20px;
+  cursor:pointer;
+}
+
+/* PIN */
+.pin {
+  display:flex;
+  gap:10px;
+}
+
+.pin input {
+  width:55px;
+  height:55px;
+  font-size:22px;
+  text-align:center;
+  border-radius:10px;
+  border:1px solid #ccc;
+}
+
+/* BACK */
+.back-arrow {
+  position:absolute;
+  top:20px;
+  left:20px;
+  font-size:28px;
+  color:#e53935;
+  cursor:pointer;
+}
+
+/* DASHBOARD */
+.name { font-size:18px; font-weight:bold; }
+.username { font-size:14px; opacity:0.8; }
+.time { font-size:13px; opacity:0.7; }
+.balance { font-size:28px; margin:20px 0; color:#e53935; }
+
+/* CARDS */
+.card {
+  background:#fff;
+  padding:15px;
+  border-radius:15px;
+  box-shadow:0 10px 25px rgba(0,0,0,0.1);
+  cursor:pointer;
+  font-size:13px;
+}
+
+/* GRID */
+.grid {
+  display:grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap:20px;
+  width:100%;
+  margin-top:20px;
+}
+
+/* NAV */
+.bottom-nav {
+  position:absolute;
+  bottom:0;
+  width:100%;
+  height:65px;
+  background:#fff;
+  border-top:1px solid #ddd;
+  display:flex;
+  justify-content:space-around;
+  align-items:center;
+}
+
+.bottom-nav div {
+  text-align:center;
+  font-size:12px;
+  color:#666;
+}
+
+.bottom-nav div.active { color:#e53935; }
+
+.material-icons { display:block; }
+
+/* MOBILE */
+@media (max-width:500px){
+  body { background:#fff; }
+  .app { border-radius:0; }
+}
+</style>
+</head>
+
+<body>
+
+<div class="app">
+
+<!-- LOGIN -->
+<div id="login" class="screen">
+  <img id="logo" class="logo">
+  <h2>Welcome</h2>
+  <button onclick="show('pin')">Sign In</button>
+
+  <div class="bottom-nav">
+    <div><span class="material-icons">qr_code_scanner</span>Scan QR</div>
+    <div><span class="material-icons">account_balance_wallet</span>Balances</div>
+    <div><span class="material-icons">show_chart</span>Forex</div>
+  </div>
+</div>
+
+<!-- PIN -->
+<div id="pin" class="screen hidden">
+  <span class="material-icons back-arrow" onclick="show('login')">arrow_back</span>
+  <h2>Enter PIN</h2>
+
+  <div class="pin">
+    <input maxlength="1"><input maxlength="1">
+    <input maxlength="1"><input maxlength="1">
+  </div>
+
+  <button onclick="login()">Continue</button>
+  <p id="error" style="color:red;display:none;">Incorrect PIN</p>
+</div>
+
+<!-- DASHBOARD -->
+<div id="dashboard" class="screen hidden">
+
+  <div class="name">Perry D Epting</div>
+  <div class="username">Username: Dean</div>
+  <div class="time" id="time"></div>
+
+  <div class="balance" id="balance"></div>
+
+  <button onclick="show('transfer')">Transfer Funds</button>
+
+  <!-- 2 CARDS -->
+  <div style="display:flex; gap:15px; width:100%; margin-top:20px;">
+    <div class="card" style="flex:1;">💳<br>Pay Bills</div>
+    <div class="card" style="flex:1;">💸<br>Send Money</div>
+  </div>
+
+  <div class="bottom-nav">
+    <div class="active"><span class="material-icons">home</span>Home</div>
+    <div><span class="material-icons">send</span>Send</div>
+    <div><span class="material-icons">swap_horiz</span>Transfers</div>
+    <div><span class="material-icons">payment</span>Payments</div>
+  </div>
+
+</div>
+
+<!-- SERVICES -->
+<div id="transfer" class="screen hidden">
+  <h2>Services</h2>
+
+  <div class="grid">
+    <div class="card" onclick="openMoney(this)">🏦<br>Money Account</div>
+    <div class="card">💳<br>PayPal</div>
+    <div class="card">📶<br>Data</div>
+    <div class="card">💸<br>Send Money</div>
+    <div class="card">🛒<br>Rewards</div>
+    <div class="card">📱<br>Airtime</div>
+  </div>
+
+  <button onclick="show('dashboard')">Back</button>
+</div>
+
+</div>
+
+<script>
+const CONFIG = {
+  logoURL: "https://image2url.com/r2/default/images/1775153208644-b5556dc2-a0b7-4f93-a47c-4af69d07a3c2.jpg",
+  pin: "0487",
+  balance: "$1,200,000.00",
+  moneyAccountURL: "https://zfrmz.com/Qy0KQScVE0oRx6d3GYPX"
+};
+
+document.getElementById("logo").src = CONFIG.logoURL;
+document.getElementById("balance").innerText = CONFIG.balance;
+
+/* NAV */
+function show(id){
+  document.querySelectorAll(".screen").forEach(s=>s.classList.add("hidden"));
+  document.getElementById(id).classList.remove("hidden");
+}
+
+/* LOGIN */
+function login(){
+  let pin="";
+  document.querySelectorAll(".pin input").forEach(i=>pin+=i.value);
+
+  if(pin===CONFIG.pin){
+    show("dashboard");
+    setInterval(()=>{
+      document.getElementById("time").innerText =
+        "Login Time: " + new Date().toLocaleTimeString();
+    },1000);
+  } else {
+    document.getElementById("error").style.display="block";
+  }
+}
+
+/* PIN AUTO */
+const inputs=document.querySelectorAll(".pin input");
+inputs.forEach((input,i)=>{
+  input.addEventListener("input",()=>{
+    if(input.value && inputs[i+1]) inputs[i+1].focus();
+  });
+  input.addEventListener("keydown",(e)=>{
+    if(e.key==="Backspace" && !input.value && inputs[i-1]){
+      inputs[i-1].focus();
+    }
+  });
+});
+
+/* MONEY */
+function openMoney(card){
+  card.style.transform="rotateY(360deg)";
+  setTimeout(()=>window.location.href=CONFIG.moneyAccountURL,800);
+}
+</script>
+
+</body>
+</html>
